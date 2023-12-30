@@ -2,7 +2,6 @@ import logging
 import argparse
 import os
 import json
-from tqdm import tqdm
 from collections import Counter
 from datasets import load_dataset
 import nltk
