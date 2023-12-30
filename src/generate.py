@@ -84,7 +84,7 @@ def main():
         for epoch in range(epochs):
             for i in range(args.genereate_num):
                 passage_text = data[args.start_idx +
-                                    epoch]["passages"]["passage_text"]
+                                    epoch]["passages"]["passage_text"][0]
                 question_text = gen_related_question(passage_text)
                 answer_text = gen_answer(passage_text, question_text)
                 _tpm_data = {
