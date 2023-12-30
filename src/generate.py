@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import json
 from datasets import load_dataset
 from call_api import get_gemini
 
@@ -13,6 +14,7 @@ def gen_related_question(prompt, retry=3):
         exit(1)
     _to_send = f"""
     Read the given passage and raise a question related to the passage.
+    Passage:
     {prompt}
     """
     try:
@@ -21,6 +23,26 @@ def gen_related_question(prompt, retry=3):
         print(e)
         print(f"Error, retry={retry}")
         return gen_related_question(prompt, retry-1)
+    return res_text
+
+
+def gen_answer(passage, question, retry=3):
+    if retry == 0:
+        print("Error in gen_answer")
+        exit(1)
+    _to_send = f"""
+    Read the given passage and question, then answer the question.
+    Passage:
+    {passage}
+    Question:
+    {question}
+    """
+    try:
+        res_text = get_gemini(_to_send)
+    except Exception as e:
+        print(e)
+        print(f"Error, retry={retry}")
+        return gen_answer(passage, question, retry-1)
     return res_text
 
 
@@ -57,10 +79,22 @@ def main():
     )
 
     # TODO: Generate questions
-    epochs = args.end_idx - args.start_idx + 1
-    for epoch in range(epochs):
-        pass
-    pass
+    with open(os.path.join(args.save_dir, args.save_file_name), "w") as f:
+        epochs = args.end_idx - args.start_idx + 1
+        for epoch in range(epochs):
+            for i in range(args.genereate_num):
+                passage_text = data[args.start_idx +
+                                    epoch]["passages"]["passage_text"]
+                question_text = gen_related_question(passage_text)
+                answer_text = gen_answer(passage_text, question_text)
+                _tpm_data = {
+                    "id": args.start_idx + epoch,
+                    "question": question_text,
+                    "answer": answer_text,
+                }
+                f.write(json.dumps(_tpm_data) + "\n")
+                logger.info(f"epoch: {epoch}, idx: {i}")
+            logger.info(f"epoch: {epoch} done")
 
 
 if __name__ == '__main__':

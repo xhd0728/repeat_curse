@@ -50,12 +50,7 @@ def get_gemini(prompt):
         }
     }
     res = requests.post(url, headers=headers, params=params, json=payload)
-    try:
-        res_text = res.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        print(e)
-        print("Error in get_gemini")
-    return res_text
+    return res.json()["candidates"][0]["content"]["parts"][0]["text"]
 
 
 if __name__ == '__main__':
