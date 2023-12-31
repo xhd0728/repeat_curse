@@ -2,6 +2,7 @@ import logging
 import argparse
 import os
 import json
+from tqdm import tqdm
 from collections import Counter
 from datasets import load_dataset
 import nltk
@@ -38,7 +39,7 @@ def get_common_words_frequency(strings: List[str]) -> Dict[str, List[int]]:
     return common_word_freq
 
 
-def get_word_frequencies_in_passage(common_words: Dict[str, List[int]], passage: str):
+def get_word_frequencies_in_passage(common_words: Dict[str, List[int]], passage: str) -> Dict[str, int]:
     passage_words = word_tokenize(passage)
     passage_words = [lemmatizer.lemmatize(word) for word in passage_words]
     word_freq_in_passage = {word: passage_words.count(
@@ -46,12 +47,14 @@ def get_word_frequencies_in_passage(common_words: Dict[str, List[int]], passage:
     return word_freq_in_passage
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser("")
     parser.add_argument("--evaluate_num", type=int)
     parser.add_argument("--start_idx", type=int)
     parser.add_argument("--end_idx", type=int)
     parser.add_argument("--dataset", type=str)
+    parser.add_argument("--save_dir", type=str)
+    parser.add_argument("--save_file_name", type=str)
     parser.add_argument("--data_dir", type=str)
     parser.add_argument("--data_file_name", type=str)
     parser.add_argument("--log_dir", type=str)
@@ -78,10 +81,11 @@ def main():
     )
 
     # TODO: Evaluate Answer Only
-    with open(os.path.join(args.data_dir, args.data_file_name), "r") as f:
+    with open(os.path.join(args.data_dir, args.data_file_name), "r", encoding="utf-8") as f:
         lines = f.readlines()
+    with open(os.path.join(args.save_dir, args.save_file_name), "w", encoding="utf-8") as g:
         epochs = args.end_idx - args.start_idx + 1
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             text_list = []
             for line in lines[epoch * args.evaluate_num: (epoch + 1) * args.evaluate_num]:
                 text_list.append(json.loads(line).get("answer").lower())
@@ -90,10 +94,8 @@ def main():
             word_frequency_in_passage = get_word_frequencies_in_passage(
                 common_word_frequency.keys(),
                 data[epoch]["passages"]["passage_text"][0].lower()
-
             )
-            logger.info(f"epoch={epoch} <json>" +
-                        str(word_frequency_in_passage))
+            g.write(json.dumps(word_frequency_in_passage) + "\n")
 
 
 if __name__ == "__main__":

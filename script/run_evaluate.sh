@@ -9,5 +9,7 @@ python src/evaluate.py \
     --dataset /root/Workspace/datasets/ms_marco/ms_marco.py \
     --data_dir /root/Workspace/repeat_curse/data \
     --data_file_name related_3.jsonl \
+    --save_dir /root/Workspace/repeat_curse/data \
+    --save_file_name evaluate_3.jsonl \
     --log_dir /root/Workspace/repeat_curse/log \
     --log_file_name evaluate_related_3.log
