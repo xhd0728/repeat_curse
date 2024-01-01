@@ -33,3 +33,11 @@ check before exec the script
 ```shell
 bash script/run_evaluate.sh
 ```
+
+## 3. Calculate
+
+check before exec the script
+
+```shell
+bash script/run_calculate.sh
+```

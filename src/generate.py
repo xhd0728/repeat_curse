@@ -79,7 +79,7 @@ def main():
     )
 
     # TODO: Generate questions
-    with open(os.path.join(args.save_dir, args.save_file_name), "w") as f:
+    with open(os.path.join(args.save_dir, args.save_file_name), "w", encoding="utf-8") as f:
         epochs = args.end_idx - args.start_idx + 1
         for epoch in range(epochs):
             for i in range(args.genereate_num):
